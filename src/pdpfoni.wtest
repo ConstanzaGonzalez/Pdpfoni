@@ -1,0 +1,35 @@
+import example.*
+import packs.*
+
+test "Una linea de tipo comun no puede realizar un consumo por que no tiene el pack indicado" {
+
+	const consumo = new ConsumoLlamadas(segundos = 20)
+	const pack = new MbLibres(cantidadMB = 5, fechaVencimiento = new Date())
+	const linea = new Linea(consumos = [consumo], packs = [pack], tipoLinea = comun)
+	
+	assert.throwsException({ linea.realizarConsumo(consumo) })
+
+}
+test "Una linea de tipo Black puede realizar un consumo aumentando su deuda" {
+
+	const consumo = new ConsumoLlamadas(segundos = 40)
+	const pack = new MbLibres(cantidadMB = 5, fechaVencimiento = new Date().minusDays(1))
+	const linea = new Linea(consumos = [consumo], packs = [pack], tipoLinea = black)
+	linea.realizarConsumo(consumo)
+	
+	assert.equals(linea.deuda(), 110)
+
+}
+test "La linea puede calcular el costo promedio de consumo entre dos fechas" {
+
+	const consumoLlamadas = new ConsumoLlamadas(segundos = 40)
+	const consumoInternet = new ConsumoInternet(cantidadMB = 5)
+	const consumoLlamadas2 = new ConsumoLlamadas(segundos = 10)
+	const pack = new MbLibres(cantidadMB = 5, fechaVencimiento = new Date().minusDays(1))
+	const linea = new Linea(consumos = [consumoLlamadas, consumoInternet, consumoLlamadas2], packs = [pack], tipoLinea = comun)
+	const hoy = new Date()
+	const ayer = hoy.minusDays(1) 
+	
+	assert.equals(linea.promedioConsumo(ayer, hoy), 170/3)
+
+}
